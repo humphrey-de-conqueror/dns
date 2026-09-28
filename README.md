@@ -6,6 +6,7 @@ run independently.
 
 ## Structure
 
+```
 dns-server/
 ├── forward/
 │   ├── setup-forward.sh    # install BIND9 and configure forward zone
@@ -14,6 +15,7 @@ dns-server/
 │   ├── setup-reverse.sh    # install BIND9 and append reverse zone
 │   └── manage-reverse.sh   # add, remove, and list PTR records
 └── zones.sh                # list and remove declared zones
+```
 
 ## Usage
 
