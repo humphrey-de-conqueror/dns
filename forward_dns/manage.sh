@@ -22,7 +22,8 @@ die()     { echo "${RED}[-] ERROR:${NC} $*" >&2; exit 1; }
 [[ $EUID -ne 0 ]] && die "Run this script as root (sudo)."
 
 # ---------- read domain from existing config ---------------------------------
-DOMAIN=$(grep -oP 'zone "\K[^"]+' /etc/bind/named.conf.local) \
+# exclude in-addr.arpa zones so we only grab the forward zone
+DOMAIN=$(grep -oP 'zone "\K[^"]+' /etc/bind/named.conf.local | grep -v "in-addr.arpa") \
     || die "Could not read domain from /etc/bind/named.conf.local. Run setup-forward.sh first."
 
 ZONE_FILE="/etc/bind/db.${DOMAIN}"
@@ -30,7 +31,7 @@ ZONE_FILE="/etc/bind/db.${DOMAIN}"
 # ---------- preflight checks -------------------------------------------------
 command -v named &>/dev/null      || die "BIND9 not installed. Run setup-forward.sh first."
 [[ -f "${ZONE_FILE}" ]]           || die "Zone file not found. Run setup-forward.sh first."
-systemctl is-active --quiet bind9 || die "BIND9 not running. Run setup-forward.sh first."
+systemctl is-active --quiet named || die "BIND9 not running. Run setup-forward.sh first."
 
 # ---------- helper functions -------------------------------------------------
 
@@ -60,7 +61,7 @@ validate() {
 reload_bind() {
     info "Reloading BIND9..."
     if ! rndc reload; then
-        die "rndc reload failed. Check journalctl -u bind9 for details."
+        die "rndc reload failed. Check journalctl -u named for details."
     fi
     success "BIND9 reloaded."
 }
@@ -120,7 +121,7 @@ list_entries() {
     echo ""
     echo "${BOLD}Current A records in ${DOMAIN}:${NC}"
     echo "-------------------------------------------"
-    grep -P "IN\s+A\s+" "${ZONE_FILE}" || warn "No A records found."
+    grep -P "IN\t+A\t+" "${ZONE_FILE}" || warn "No A records found."
     echo "-------------------------------------------"
     echo ""
 }
