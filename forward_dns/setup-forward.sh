@@ -33,8 +33,8 @@ if ! ip addr show | grep -q "${SERVER_IP}"; then
 fi
 
 # optional — sensible defaults
-read -rp "Domain name [example.com]: " DOMAIN
-DOMAIN="${DOMAIN:-example.com}"
+read -rp "Domain name [dns-local]: " DOMAIN
+DOMAIN="${DOMAIN:-dns-local}"
 
 read -rp "DNS forwarder [8.8.8.8]: " FORWARDER
 FORWARDER="${FORWARDER:-8.8.8.8}"
